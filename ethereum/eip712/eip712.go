@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"reflect"
 	"strings"
+	"time"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -381,6 +382,7 @@ var (
 	bigIntType    = reflect.TypeOf(big.Int{})
 	cosmIntType   = reflect.TypeOf(sdk.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
+	timeType      = reflect.TypeOf(time.Time{})
 )
 
 // typToEth supports only basic types and arrays of basic types.
@@ -425,14 +427,16 @@ func typToEth(typ reflect.Type) string {
 		}
 	case reflect.Ptr:
 		if typ.Elem().ConvertibleTo(bigIntType) ||
-			typ.Elem().ConvertibleTo(cosmIntType) {
+			typ.Elem().ConvertibleTo(cosmIntType) ||
+			typ.Elem().ConvertibleTo(timeType) {
 			return str
 		}
 	case reflect.Struct:
 		if typ.ConvertibleTo(hashType) ||
 			typ.ConvertibleTo(addressType) ||
 			typ.ConvertibleTo(bigIntType) ||
-			typ.ConvertibleTo(cosmIntType) {
+			typ.ConvertibleTo(cosmIntType) ||
+			typ.ConvertibleTo(timeType) {
 			return str
 		}
 	}
