@@ -8,11 +8,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	types5 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types2 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	types3 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/ethermint/ethereum/eip712"
 	"github.com/evmos/ethermint/types"
+	types4 "github.com/evmos/evmos/v6/x/vesting/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -256,6 +258,17 @@ func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgSend(from sdk.AccAddress
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgSend := types2.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(1))))
 	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, msgSend)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgVesting(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	// Build MsgSend
+	recipient := sdk.AccAddress(common.Address{}.Bytes())
+	vestingPeriod := types5.Periods{}
+	vestingPeriod = append(vestingPeriod, types5.Period{Amount: sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(1))), Length: 1})
+	msgCreateClawbackVestingAccount := types4.NewMsgCreateClawbackVestingAccount(from,
+		recipient,
+		time.Now(), vestingPeriod, vestingPeriod)
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, msgCreateClawbackVestingAccount)
 }
 
 func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgDelegate(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
